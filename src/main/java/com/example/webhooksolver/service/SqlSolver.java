@@ -1,17 +1,16 @@
+// Updated SqlSolver.java
 package com.example.webhooksolver.service;
 
 import org.springframework.stereotype.Service;
 
-// @Service tells Spring this is a business logic component
 @Service
 public class SqlSolver {
-
-    // This method decides which SQL problem to solve
+    
     public String solveProblem(String regNo) {
         // Get last two digits of registration number
         String lastTwoDigits = regNo.substring(regNo.length() - 2);
         int number = Integer.parseInt(lastTwoDigits);
-
+        
         // Check if odd or even
         if (number % 2 == 1) {
             System.out.println("📝 Solving Question 1 (Odd registration)");
@@ -21,8 +20,8 @@ public class SqlSolver {
             return solveQuestion2();
         }
     }
-
-    // SQL solution for Question 1 (Odd numbers)
+    
+    // SQL solution for Question 1 (Odd numbers) - Keep existing
     private String solveQuestion1() {
         return """
             SELECT e.employee_id, e.first_name, e.last_name, e.salary, e.department_id
@@ -36,17 +35,27 @@ public class SqlSolver {
             ORDER BY e.department_id;
             """;
     }
-
-    // SQL solution for Question 2 (Even numbers)
+    
+    // SQL solution for Question 2 (Even numbers) - UPDATED SOLUTION
     private String solveQuestion2() {
         return """
-            SELECT DISTINCT salary
-            FROM employees e1
-            WHERE 2 = (
-                SELECT COUNT(DISTINCT salary)
-                FROM employees e2
-                WHERE e2.salary >= e1.salary
-            );
+            SELECT 
+                e1.EMP_ID,
+                e1.FIRST_NAME,
+                e1.LAST_NAME,
+                d.DEPARTMENT_NAME,
+                COUNT(e2.EMP_ID) as YOUNGER_EMPLOYEES_COUNT
+            FROM 
+                EMPLOYEE e1
+            INNER JOIN 
+                DEPARTMENT d ON e1.DEPARTMENT = d.DEPARTMENT_ID
+            LEFT JOIN 
+                EMPLOYEE e2 ON e1.DEPARTMENT = e2.DEPARTMENT 
+                AND e2.DOB > e1.DOB
+            GROUP BY 
+                e1.EMP_ID, e1.FIRST_NAME, e1.LAST_NAME, d.DEPARTMENT_NAME
+            ORDER BY 
+                e1.EMP_ID DESC;
             """;
     }
 }
